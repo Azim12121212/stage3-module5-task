@@ -1,0 +1,85 @@
+plugins {
+    id 'java-base'
+}
+
+wrapper {
+    gradleVersion = gradlewVersion
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    group = 'com.mjc.school'
+
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+        implementation 'org.springframework.boot:spring-boot-starter-web:2.7.7'
+
+        implementation "org.springframework:spring-context:$springVersion"
+
+        implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+        implementation "org.springframework.boot:spring-boot-starter-data-jpa:2.7.7"
+
+        // https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter
+        implementation 'io.springfox:springfox-boot-starter:3.0.0'
+
+        // https://mvnrepository.com/artifact/io.springfox/springfox-swagger2
+        implementation 'io.springfox:springfox-swagger2:3.0.0'
+        // https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
+        implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+
+        // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-hateoas
+        implementation 'org.springframework.boot:spring-boot-starter-hateoas:2.7.5'
+
+        testImplementation "org.springframework:spring-test:$springVersion"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:$jupiterVersion"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jupiterVersion"
+
+        testImplementation "com.tngtech.archunit:archunit:$archUnitVersion"
+        testImplementation "com.tngtech.archunit:archunit-junit5:1.0.0"
+
+        // https://mvnrepository.com/artifact/org.projectlombok/lombok
+        compileOnly 'org.projectlombok:lombok:1.18.30'
+        annotationProcessor 'org.projectlombok:lombok:1.18.30'
+        testCompileOnly 'org.projectlombok:lombok:1.18.30'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+        annotationProcessor "org.mapstruct:mapstruct-processor:$mapstructVersion"
+        implementation "org.mapstruct:mapstruct:$mapstructVersion"
+
+        implementation "org.aspectj:aspectjrt:1.9.7"
+        implementation "org.aspectj:aspectjweaver:1.9.7"
+
+        testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
+
+        // https://mvnrepository.com/artifact/org.postgresql/postgresql
+        implementation 'org.postgresql:postgresql:42.7.2'
+
+        testImplementation 'com.h2database:h2:2.2.224'
+
+        implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    }
+    test {
+        useJUnitPlatform()
+    }
+}
+
+task repack(type: Jar, dependsOn: ':module-main:build') {
+    if (findProject(':module-main') != null) {
+        entryCompression = ZipEntryCompression.STORED
+        def buildJar = zipTree("${project(':module-main').buildDir}/libs/module-main.jar")
+        from(buildJar) { into('/') }
+        manifest {
+            attributes(
+                    'Main-Class': 'com.mjc.school.Main'
+            )
+        }
+    }
+}
